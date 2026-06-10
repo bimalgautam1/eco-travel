@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* ── Global base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* Prevent horizontal overflow on mobile */
+  overflow-x: hidden;
+  min-height: 100dvh;
+}
+
+/* Safe mobile viewport height */
+.min-h-screen {
+  min-height: 100dvh;
+}
+
+/* Touch-friendly tap targets */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* Custom transitions */
+.transition-all-custom {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn  { animation: fadeIn  0.35s ease both; }
+.animate-slideDown { animation: slideDown 0.25s ease both; }
+
+/* ── Mobile bottom-nav safe area ── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* ── Scrollable containers on mobile ── */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Prevent badge text wrapping inside narrow cards ── */
+.badge-nowrap { white-space: nowrap; }
+
