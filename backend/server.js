@@ -13,7 +13,10 @@ const PORT = process.env.PORT || 3000;
 // Middleware setup
 app.use(cors(
   {
-    origin: "*",
+    origin: "https://eco-travel-eight.vercel.app",
+    methods: "GET,POST,PUT,DELETE,PATCH",
+    allowedHeaders: "Content-Type,Authorization",
+    credentials: true
   }
 ));
 app.use(express.json());
