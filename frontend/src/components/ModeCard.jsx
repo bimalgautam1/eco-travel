@@ -112,11 +112,21 @@ const ModeCard = ({ modeData, ranking, source, destination, city, distance, wayp
       }
 
       setIsSuccess(true);
-      // After 1.8s, collapse the form and switch dashboard to Travel History
+      // After 1.8s, collapse the form and pass trip data for carbon story
       setTimeout(() => {
         setShowLogForm(false);
         setIsSuccess(false);
-        if (onSaved) onSaved();
+        // Baseline CO2 for a solo petrol car: 0.18 kg/km
+        const distVal = parseFloat(distance);
+        const co2Val = parseFloat(co2);
+        const co2Saved = Math.max(0, distVal * 0.18 - co2Val);
+        if (onSaved) onSaved({
+          mode,
+          distance: distVal,
+          co2: co2Val,
+          co2Saved: parseFloat(co2Saved.toFixed(3)),
+          city: city || 'Delhi',
+        });
       }, 1800);
     } catch (err) {
       console.error(err);

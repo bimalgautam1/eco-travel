@@ -7,6 +7,9 @@ import TravelHistory from '../components/TravelHistory';
 import ImpactDashboard from '../components/ImpactDashboard';
 import GamificationDashboard from '../components/GamificationDashboard';
 import WeatherWidget from '../components/WeatherWidget';
+import AIChatWidget from '../components/AIChatWidget';
+import AIRecommendCard from '../components/AIRecommendCard';
+import CarbonStoryModal from '../components/CarbonStoryModal';
 import { getCompareRoutes, getMapsKey, getTravelHistory } from '../services/api';
 import { loadGoogleMaps } from '../utils/googleMapsLoader';
 import { fetchAllModeDistances } from '../utils/mapsDistanceService';
@@ -26,6 +29,9 @@ const Dashboard = () => {
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [historyError, setHistoryError] = useState('');
+
+  // Carbon Story Modal state — triggered after a trip is logged
+  const [carbonStoryTrip, setCarbonStoryTrip] = useState(null);
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -367,6 +373,8 @@ const Dashboard = () => {
                   )}
                   {!isLoading && !error && results && (
                     <div className="space-y-6 animate-fadeIn">
+                      {/* AI Personalized Recommendation */}
+                      <AIRecommendCard city={results.city || 'Delhi'} />
                       <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-xl border border-slate-100 dark:border-slate-800">
                         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                           <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">🗺️ Route Map</span>
@@ -377,7 +385,16 @@ const Dashboard = () => {
                         </div>
                         <MapView source={results.source} destination={results.destination} apiKey={mapsApiKey} isDarkMode={isDarkMode} waypoints={results.waypoints || []} />
                       </div>
-                      <ResultsPanel results={results} onTravelSaved={async () => { await fetchHistory(); if (refreshUser) await refreshUser(); setActiveTab('history'); }} />
+                      <ResultsPanel
+                        results={results}
+                        onTravelSaved={async (tripData) => {
+                          await fetchHistory();
+                          if (refreshUser) await refreshUser();
+                          // Trigger carbon story modal
+                          if (tripData) setCarbonStoryTrip(tripData);
+                          else setActiveTab('history');
+                        }}
+                      />
                     </div>
                   )}
                 </div>
@@ -395,6 +412,26 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* ── Phase 1: Floating AI Chat Widget (global, bottom-right) ── */}
+      <AIChatWidget
+        context={{
+          city: results?.city || 'Delhi',
+          distance: results?.distance || null,
+          modes: results?.modes || [],
+        }}
+      />
+
+      {/* ── Phase 3: Carbon Story Modal (triggered after trip save) ── */}
+      {carbonStoryTrip && (
+        <CarbonStoryModal
+          tripData={carbonStoryTrip}
+          onClose={() => {
+            setCarbonStoryTrip(null);
+            setActiveTab('history');
+          }}
+        />
+      )}
     </div>
   );
 };

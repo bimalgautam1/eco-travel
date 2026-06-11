@@ -83,7 +83,10 @@ exports.compareRoutes = async (req, res) => {
     }
 
     // 2. Fetch computed pricing options
-    const costs = await costService.calculateCosts(city, distance);
+    // Detect weekend (Sunday = 0) or National Holiday for DMRC metro pricing
+    const todayDay = new Date().getDay(); // 0 = Sunday, 6 = Saturday
+    const isWeekend = todayDay === 0; // Only Sunday gets the discounted DMRC rate
+    const costs = await costService.calculateCosts(city, distance, isWeekend);
 
     // 3. Compute carbon emissions
     const co2 = co2Service.calculateCO2(distance);
@@ -103,7 +106,21 @@ exports.compareRoutes = async (req, res) => {
       const autoDist = distance * 0.15;
       const metroDist = distance * 0.85;
 
-      const comboCost = parseFloat((30 + (autoDist * 11) + costs.metro).toFixed(2)); // auto base + perKm + metro fare
+      // Auto leg: use accurate calculation for Delhi or Bengaluru, otherwise fallback
+      const searchCity = city ? city.trim().toLowerCase() : 'delhi';
+      const isDelhi = searchCity === 'delhi' || searchCity === 'new delhi' || searchCity === 'delhi ncr';
+      const isBengaluru = searchCity === 'bangalore' || searchCity === 'bengaluru';
+      
+      let autoLegCost;
+      if (isDelhi) {
+        autoLegCost = costService.calculateDelhiAutoFare(autoDist);
+      } else if (isBengaluru) {
+        autoLegCost = costService.calculateBengaluruAutoFare(autoDist);
+      } else {
+        autoLegCost = 30 + (autoDist * 11); // Generic Fallback
+      }
+
+      const comboCost = parseFloat((autoLegCost + costs.metro).toFixed(2)); // auto leg + metro fare
       const comboDuration = Math.round((durations.auto * 0.15) + durations.metro + 5); // auto transfer + metro duration + buffer
       const comboCO2 = parseFloat(((autoDist * 0.12) + (metroDist * 0.04)).toFixed(3)); // auto CO2 + metro CO2
 

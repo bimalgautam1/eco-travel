@@ -55,7 +55,7 @@ const ResultsPanel = ({ results, onTravelSaved }) => {
               city={city}
               distance={distance}
               waypoints={results.waypoints || []}
-              onSaved={onTravelSaved}
+              onSaved={(tripData) => onTravelSaved && onTravelSaved(tripData)}
             />
           ))}
         </div>

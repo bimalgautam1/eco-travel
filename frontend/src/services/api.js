@@ -68,10 +68,24 @@ export const getTravelHistory = async () => {
   return response.data;
 };
 
+export const getAIRecommend = async (city, aqi) => {
+  const params = { city };
+  if (aqi) params.aqi = aqi;
+  const response = await api.get('/api/ai/recommend', { params });
+  return response.data;
+};
+
+export const postCarbonStory = async (tripData) => {
+  const response = await api.post('/api/ai/carbon-story', tripData);
+  return response.data;
+};
+
 export default {
   getCompareRoutes,
   submitFeedback,
   getMapsKey,
   saveTravel,
   getTravelHistory,
+  getAIRecommend,
+  postCarbonStory,
 };

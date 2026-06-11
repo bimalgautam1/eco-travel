@@ -6,11 +6,12 @@ require('dotenv').config();
 const sequelize = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const commuteRoutes = require('./routes/commuteRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware setup
+// CORS configuration — explicitly allow the Vercel frontend origin
 const allowedOrigins = [
   'https://eco-travel-eight.vercel.app',
   'http://localhost:5173', // local dev
@@ -39,6 +40,7 @@ app.use(morgan('dev'));
 // Routing setup
 app.use('/api/auth', authRoutes);
 app.use('/api', commuteRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Root health check endpoint
 app.get('/health', (req, res) => {
@@ -63,7 +65,7 @@ async function startServer() {
     console.log('Database authentication successful.');
 
     // Sync all models (alter: true updates existing tables without dropping data)
-    // await sequelize.sync({ alter: false });
+    // await sequelize.sync({ alter: true });
     console.log('Database models synced successfully.');
 
     app.listen(PORT, () => {
