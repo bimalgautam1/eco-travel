@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const axios = require('axios');
 require('dotenv').config();
 
 const sequelize = require('./config/db');
@@ -70,6 +71,17 @@ async function startServer() {
 
     app.listen(PORT, () => {
       console.log(`Server launched successfully at http://localhost:${PORT}`);
+
+      // 5-minute keep-alive timer
+      setInterval(async () => {
+        try {
+          const url = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+          await axios.get(`${url}/health`);
+          console.log(`Self-ping to ${url}/health successful.`);
+        } catch (error) {
+          console.error('Self-ping failed:', error.message);
+        }
+      }, 5 * 60 * 1000);
     });
   } catch (error) {
     console.error('Database connection failed:', error.message);
