@@ -78,5 +78,4 @@ npm run dev
 ```
 The frontend will typically run on `http://localhost:5173`.
 
-## Team Details
 *   **Participant Name** - Bimal Gautam
